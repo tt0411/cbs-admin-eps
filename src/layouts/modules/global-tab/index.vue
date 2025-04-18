@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useElementBounding } from '@vueuse/core';
 import { PageTab } from '@sa/materials';
-import BetterScroll from '@/components/custom/better-scroll.vue';
+import { VueDraggable } from 'vue-draggable-plus'
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import { useRouteStore } from '@/store/modules/route';
 import { useTabStore } from '@/store/modules/tab';
-import { isPC } from '@/utils/agent';
 import ContextMenu from './context-menu.vue';
 
 defineOptions({ name: 'GlobalTab' });
@@ -18,54 +16,25 @@ const appStore = useAppStore();
 const themeStore = useThemeStore();
 const routeStore = useRouteStore();
 const tabStore = useTabStore();
-
-const bsWrapper = ref<HTMLElement>();
-const { width: bsWrapperWidth, left: bsWrapperLeft } = useElementBounding(bsWrapper);
-const bsScroll = ref<InstanceType<typeof BetterScroll>>();
 const tabRef = ref<HTMLElement>();
-const isPCFlag = isPC();
-
-const TAB_DATA_ID = 'data-tab-id';
-
-type TabNamedNodeMap = NamedNodeMap & {
-  [TAB_DATA_ID]: Attr;
-};
 
 async function scrollToActiveTab() {
   await nextTick();
-  if (!tabRef.value) return;
+  const container = tabRef.value;
+  if (!container) return;
 
-  const { children } = tabRef.value;
-
-  for (let i = 0; i < children.length; i += 1) {
-    const child = children[i];
-
-    const { value: tabId } = (child.attributes as TabNamedNodeMap)[TAB_DATA_ID];
-
+  const tabNodes = container.querySelectorAll('[data-tab-id]');
+  for (let i = 0; i < tabNodes.length; ++i) {
+    const node = tabNodes[i] as HTMLElement;
+    const tabId = node.getAttribute('data-tab-id');
     if (tabId === tabStore.activeTabId) {
-      const { left, width } = child.getBoundingClientRect();
-      const clientX = left + width / 2;
-
-      setTimeout(() => {
-        scrollByClientX(clientX);
-      }, 50);
-
+      // 让当前tab居中
+      const containerRect = container.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      const offset = nodeRect.left - containerRect.left - (containerRect.width - nodeRect.width) / 2;
+      container.scrollLeft += offset;
       break;
     }
-  }
-}
-
-function scrollByClientX(clientX: number) {
-  const currentX = clientX - bsWrapperLeft.value;
-  const deltaX = currentX - bsWrapperWidth.value / 2;
-
-  if (bsScroll.value?.instance) {
-    const { maxScrollX, x: leftX, scrollBy } = bsScroll.value.instance;
-
-    const rightX = maxScrollX - leftX;
-    const update = deltaX > 0 ? Math.max(-deltaX, rightX) : Math.min(-deltaX, -leftX);
-
-    scrollBy(update, 0, 300);
   }
 }
 
@@ -144,8 +113,8 @@ function init() {
   tabStore.initTabStore(route);
 }
 
-function removeFocus() {
-  (document.activeElement as HTMLElement)?.blur();
+function onTabsChange(newTabs: any) {
+  tabStore.setTabs(newTabs);
 }
 
 // watch
@@ -168,33 +137,42 @@ init();
 
 <template>
   <DarkModeContainer class="size-full flex-y-center px-16px shadow-tab">
-    <div ref="bsWrapper" class="h-full flex-1-hidden">
-      <BetterScroll ref="bsScroll" :options="{ scrollX: true, scrollY: false, click: !isPCFlag }" @click="removeFocus">
-        <div
-          ref="tabRef"
+    <div class="h-full flex-1-hidden">
+      <div
+        ref="tabRef"
+        class="tab-scroll-x h-full flex overflow-x-auto pr-18px"
+        :class="[themeStore.tab.mode === 'chrome' ? 'items-end' : 'items-center gap-12px']"
+      >
+        <VueDraggable
+          :modelValue="tabStore.tabs"
+          @update:modelValue="onTabsChange"
+          :filter="'.none_draggable'"
           class="h-full flex pr-18px"
-          :class="[themeStore.tab.mode === 'chrome' ? 'items-end' : 'items-center gap-12px']"
         >
-          <PageTab
-            v-for="tab in tabStore.tabs"
-            :key="tab.id"
-            :[TAB_DATA_ID]="tab.id"
-            :mode="themeStore.tab.mode"
-            :dark-mode="themeStore.darkMode"
-            :active="tab.id === tabStore.activeTabId"
-            :active-color="themeStore.themeColor"
-            :closable="!tabStore.isTabRetain(tab.id)"
-            @click="tabStore.switchRouteByTab(tab)"
-            @close="handleCloseTab(tab)"
-            @contextmenu="handleContextMenu($event, tab.id)"
-          >
-            <template #prefix>
-              <SvgIcon :icon="tab.icon" :local-icon="tab.localIcon" class="inline-block align-text-bottom text-16px" />
-            </template>
-            <div class="max-w-240px ellipsis-text">{{ tab.label }}</div>
-          </PageTab>
-        </div>
-      </BetterScroll>
+            <div v-for="tab in tabStore.tabs" :key="tab.id" :data-tab-id="tab.id" class="pt-10px h-full flex items-center pr-4"
+            :class="tab.id === '/home' ? 'none_draggable' : ''">
+              <PageTab
+                :mode="themeStore.tab.mode"
+                :dark-mode="themeStore.darkMode"
+                :active="tab.id === tabStore.activeTabId"
+                :active-color="themeStore.themeColor"
+                :closable="!tabStore.isTabRetain(tab.id)"
+                @click="tabStore.switchRouteByTab(tab)"
+                @close="handleCloseTab(tab)"
+                @contextmenu="handleContextMenu($event, tab.id)"
+              >
+                <template #prefix>
+                  <SvgIcon
+                    :icon="tab.icon"
+                    :local-icon="tab.localIcon"
+                    class="inline-block align-text-bottom text-16px"
+                  />
+                </template>
+                <div class="max-w-240px ellipsis-text">{{ tab.label }}</div>
+              </PageTab>
+            </div>
+        </VueDraggable>
+      </div>
     </div>
     <div>
       <ReloadButton :loading="!appStore.reloadFlag" @click="refresh" />
@@ -211,4 +189,12 @@ init();
   />
 </template>
 
-<style scoped></style>
+<style>
+.tab-scroll-x {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+:deep(.tab-scroll-x)::-webkit-scrollbar {
+  display: none;
+}
+</style>

@@ -49,7 +49,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       await toLogin();
     }
 
-    tabStore.cacheTabs();
+    // tabStore.cacheTabs();
+    localStorage.removeItem('dynamicRoutes')
     routeStore.resetStore();
   }
 
@@ -58,9 +59,9 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
    *
    * @param userName User name
    * @param password Password
-   * @param [redirect=true] Whether to redirect after login. Default is `true`
+   * @param [redirect=true] Whether to redirect after login. Default is `false`
    */
-  async function login(userName: string, password: string, redirect = true) {
+  async function login(userName: string, password: string, redirect = false) {
     startLoading();
 
     const { data: loginToken, error } = await fetchLogin(userName, password);
@@ -106,7 +107,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
     if (!error) {
       // update store
-      Object.assign(userInfo, info);
+      Object.assign(userInfo, { ...info, userName: 'admin'});
 
       return true;
     }

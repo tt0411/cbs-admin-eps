@@ -23,8 +23,8 @@ function handleGrayscaleChange(value: boolean) {
   themeStore.setGrayscale(value);
 }
 
-function handleColourWeaknessChange(value: boolean) {
-  themeStore.setColourWeakness(value);
+function handlecolorWeaknessChange(value: boolean) {
+  themeStore.setcolorWeakness(value);
 }
 
 const showSiderInverted = computed(() => !themeStore.darkMode && themeStore.layout.mode.includes('vertical'));
@@ -50,8 +50,8 @@ const showSiderInverted = computed(() => !themeStore.darkMode && themeStore.layo
     <SettingItem :label="$t('theme.grayscale')">
       <ElSwitch v-model:model-value="themeStore.grayscale" :update:model-value="handleGrayscaleChange" />
     </SettingItem>
-    <SettingItem :label="$t('theme.colourWeakness')">
-      <ElSwitch v-model:model-value="themeStore.colourWeakness" :update:model-value="handleColourWeaknessChange" />
+    <SettingItem :label="$t('theme.colorWeakness')">
+      <ElSwitch v-model:model-value="themeStore.colorWeakness" :update:model-value="handlecolorWeaknessChange" />
     </SettingItem>
   </div>
 </template>

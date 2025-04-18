@@ -79,7 +79,7 @@ export function useRouterPush(inSetup = true) {
       redirect
     };
 
-    return routerPushByKey('login', options);
+    return routerPushByKey('login');
   }
 
   /**

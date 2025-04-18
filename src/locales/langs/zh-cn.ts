@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Cbs 管理系统',
+    title: 'CBS 管理系统',
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',
@@ -65,7 +65,7 @@ const local: App.I18n.Schema = {
       auto: '跟随系统'
     },
     grayscale: '灰色模式',
-    colourWeakness: '色弱模式',
+    colorWeakness: '色弱模式',
     layoutMode: {
       title: '布局模式',
       vertical: '左侧菜单模式',

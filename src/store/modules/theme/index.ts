@@ -33,8 +33,8 @@ export const useThemeStore = defineStore(SetupStoreId.Theme, () => {
   /** grayscale mode */
   const grayscaleMode = computed(() => settings.value.grayscale);
 
-  /** colourWeakness mode */
-  const colourWeaknessMode = computed(() => settings.value.colourWeakness);
+  /** colorWeakness mode */
+  const colorWeaknessMode = computed(() => settings.value.colorWeakness);
 
   /** Theme colors */
   const themeColors = computed(() => {
@@ -83,12 +83,12 @@ export const useThemeStore = defineStore(SetupStoreId.Theme, () => {
   }
 
   /**
-   * Set colourWeakness value
+   * Set colorWeakness value
    *
-   * @param isColourWeakness
+   * @param iscolorWeakness
    */
-  function setColourWeakness(isColourWeakness: boolean) {
-    settings.value.colourWeakness = isColourWeakness;
+  function setcolorWeakness(iscolorWeakness: boolean) {
+    settings.value.colorWeakness = iscolorWeakness;
   }
 
   /** Toggle theme scheme */
@@ -180,7 +180,7 @@ export const useThemeStore = defineStore(SetupStoreId.Theme, () => {
     );
 
     watch(
-      [grayscaleMode, colourWeaknessMode],
+      [grayscaleMode, colorWeaknessMode],
       val => {
         toggleAuxiliaryColorModes(val[0], val[1]);
       },
@@ -210,7 +210,7 @@ export const useThemeStore = defineStore(SetupStoreId.Theme, () => {
     uiTheme,
     settingsJson,
     setGrayscale,
-    setColourWeakness,
+    setcolorWeakness,
     resetStore,
     setThemeScheme,
     toggleThemeScheme,

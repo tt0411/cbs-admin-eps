@@ -53,7 +53,6 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
   function setActiveTabId(id: string) {
     activeTabId.value = id;
   }
-
   /**
    * Init tab store
    *
@@ -273,6 +272,11 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
     localStg.set('globalTabs', tabs.value);
   }
 
+
+  function setTabs(newTabs: any[]) {
+    tabs.value = newTabs;
+  }
+
   // cache tabs when page is closed or refreshed
   useEventListener(window, 'beforeunload', () => {
     cacheTabs();
@@ -297,6 +301,7 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
     isTabRetain,
     updateTabsByLocale,
     getTabIdByRoute,
-    cacheTabs
+    cacheTabs,
+    setTabs
   };
 });

@@ -2,8 +2,6 @@ import { Plus } from '@element-plus/icons-vue'
 import dayjs from 'dayjs';
 import { h, nextTick } from 'vue';
 import DialogComp from './dialogComp.vue';
-import { Dialog } from '@/utils/dialog';
-import { Drawer } from '@/utils/drawer';
 import { nav } from '@/utils/navigation';
 import DetailComponent from './detail.vue';
 
