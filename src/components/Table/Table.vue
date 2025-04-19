@@ -30,6 +30,9 @@
             </el-tooltip>
             </span>
           </template>
+          <template v-if="column.filters" #filter-icon>
+            <svg-icon local-icon="filter"/>
+          </template>
           <template v-for="(child, childIndex) in column.children" :key="child.key || childIndex">
             <template v-if="child.children && child.children.length">
               <el-table-column v-bind="child">
@@ -46,6 +49,9 @@
                   </el-tooltip>
                   </span>
                 </template>
+                <template v-if="column.filters" #filter-icon>
+                  <svg-icon local-icon="filter"/>
+                </template>
                 <template v-for="(grandChild, grandChildIndex) in child.children" :key="grandChild.key || grandChildIndex">
                   <el-table-column v-bind="grandChild">
                     <template #header>
@@ -60,6 +66,9 @@
                         </template>
                       </el-tooltip>
                       </span>
+                    </template>
+                    <template v-if="column.filters" #filter-icon>
+                      <svg-icon local-icon="filter"/>
                     </template>
                     <template #default="{ row, col, $index }">
                       <slot v-if="grandChild.slotName" :name="grandChild.slotName" :row="row" :col="col" :index="$index" :key="$index"></slot>
@@ -89,6 +98,9 @@
                     </template>
                   </el-tooltip>
                   </span>
+                </template>
+                <template v-if="column.filters" #filter-icon>
+                  <svg-icon local-icon="filter"/>
                 </template>
                 <template #default="{ row, col, $index }">
                 <slot v-if="child.slotName" :name="child.slotName" :row="row" :col="col" :index="$index" :key="$index"></slot>
@@ -125,6 +137,9 @@
               </template>
             </el-tooltip>
             </span>
+          </template>
+          <template v-if="column.filters" #filter-icon>
+            <svg-icon local-icon="filter" />
           </template>
          <template #default="{ row, col, $index }">
             <slot v-if="column.slotName" :name="column.slotName" :row="row" :col="col" :index="$index" :key="$index"></slot>
@@ -179,11 +194,19 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const tableData = ref<any[]>()
-const tableColumns = ref<any[]>(props.columns)
+const tableColumns = ref<any[]>([])
 
 watch(() => props.data, (newValue) => {
   tableData.value = newValue
 }, { immediate: true })
+
+watch(
+  () => props.columns,
+  (newValue) => {
+    tableColumns.value = newValue
+  },
+  { immediate: true }
+)
 
 
 const emit = defineEmits(["refresh", 'update:columns']);
@@ -299,6 +322,9 @@ html.dark {
 .el-table thead {
   color: #fff;
 }
+}
+.el-table__column-filter-trigger i {
+  font-size: 16px;
 }
 </style>
 <style lang="scss" scoped>

@@ -147,6 +147,7 @@ init();
           :modelValue="tabStore.tabs"
           @update:modelValue="onTabsChange"
           :filter="'.none_draggable'"
+          :preventOnFilter="false"
           class="h-full flex pr-18px"
         >
             <div v-for="tab in tabStore.tabs" :key="tab.id" :data-tab-id="tab.id" class="pt-10px h-full flex items-center pr-4"
@@ -196,5 +197,9 @@ init();
 }
 :deep(.tab-scroll-x)::-webkit-scrollbar {
   display: none;
+}
+:deep(.none_draggable) {
+  pointer-events: auto !important;
+  touch-action: manipulation;
 }
 </style>

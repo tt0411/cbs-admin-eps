@@ -50,6 +50,7 @@ export const computedActionName = (button: Action, row: TColumn) => {
 };
 
 const tableColumns = ref<Array<TColumn>>([]);
+const tableCheckedColumns = ref<Array<TColumn>>([]);
 
 export const specificTypes = ["selection", "index"];
 
@@ -84,22 +85,23 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
   const hasAction = actions?.length > 0;
   const hasOperations = columns.find((col) => col.slotName === "operations");
   actionColumn.actions = [...actions];
+  const optionsColumn = columns.filter((col) => col.type === "action");
+  if(optionsColumn.length) {
+    actionColumn.visible = optionsColumn[0].visible;
+  }
   // 操作栏有插槽优先使用插槽，没有使用actions里面的操作
-  const _columns: any = hasAction && !hasOperations ? [...columns, actionColumn] : [...columns];
+  const _columns: any = hasAction && !hasOperations && !optionsColumn.length ? [...columns, actionColumn] : [...columns];
 
-  const newColumns = [];
+  const allColumns = [];
+  const checkedColumns = [];
 
   const processColumn = (column: TColumn) => {
     column = Object.assign({}, column);
 
-    if (column.visible === false) {
-      return null;
-    }
-
     column.prop = column.prop || column.slotName;
     column.align = column.align || "center";
     column.dragged = column.dragged || false;
-    column.visible = true;
+    column.visible = column.visible === false ? false : true;
     if (!column.type) {
       // 自动计算列宽度
       if (!column.width) {
@@ -144,35 +146,27 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
   for (let column of _columns) {
     const processedColumn = processColumn(column);
     if (processedColumn) {
-      newColumns.push(processedColumn);
+      allColumns.push(processedColumn);
     }
   }
-  return newColumns;
+
+  checkedColumns.push(...allColumns.filter((column) => column.visible));
+  return { allColumns, checkedColumns };
 };
 
-const updateTableColumns = (columnSettings: any[]) => {
-  if (columnSettings.length == 0) return false;
-
-  const columnSettingMap = new Map();
-
-  columnSettings.forEach((col) => columnSettingMap.set(col.field, col));
-
-  tableColumns.value = tableColumns.value.map((col: any) => {
-    const colSetting = columnSettingMap.get(col.key) || {};
-    Object.keys(colSetting).forEach((key) => {
-      col[key] = colSetting[key];
-    });
-    return col;
-  });
-
-  return true;
+const updateTableColumns = (columnSettings: any[], actions: any[] = []) => {
+  const { allColumns, checkedColumns } = formatColumns(columnSettings, actions);
+  tableColumns.value = allColumns;
+  tableCheckedColumns.value = checkedColumns;
 };
 
 export function useColumn(columns: Array<TColumn>, actions: any[]) {
-  tableColumns.value = formatColumns(columns, actions);
-
+  const { allColumns, checkedColumns } = formatColumns(columns, actions);
+  tableColumns.value = allColumns;
+  tableCheckedColumns.value = checkedColumns;
   return {
     tableColumns,
+    tableCheckedColumns,
     updateTableColumns,
     computedActionName,
   };

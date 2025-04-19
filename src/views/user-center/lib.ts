@@ -16,6 +16,7 @@ export const module: any = (instance: any) => {
       columnDrag: true, // 列是否可拖拽
       isFirstSearch: true, // 进入页面是否立即调用接口搜索
       showPagination: true, // 是否显示分页
+      showColumnSetting: true,
       spanMethod: ({ row, column, rowIndex, columnIndex }: any) => {
         // // 合并行
         // if (column.property === 'channelName') {
@@ -56,6 +57,10 @@ export const module: any = (instance: any) => {
       headerDragend(newWidth: number, oldWidth: number, column: any) {
         console.log("headerDragend triggered", newWidth, oldWidth, column);
       },
+      filterChange(newFilters: any) {
+        console.log(newFilters, '===newFilters===');
+        
+      }
     },
     loader: [
       {
@@ -76,6 +81,14 @@ export const module: any = (instance: any) => {
         sortable: true,
         align: "left",
         dragged: true,
+        // 表头列筛选需要加此字段
+        columnKey: 'channelName',
+        filters:[
+          { text: '抖音', value: '抖音' },
+          { text: '微信', value: '微信' },
+          { text: '微博', value: '微博' },
+          { text: '小红书', value: '小红书' },
+        ]
       },
       {
         label: "标签",
@@ -108,8 +121,6 @@ export const module: any = (instance: any) => {
       { label: "创建人", prop: "createBy" },
       { label: "修改时间", prop: "updateTime" },
       { label: "修改人", prop: "updateBy" },
-      { label: "更新时间", prop: "updateTime" },
-      { label: "更新人", prop: "updateBy" },
       // { label: "操作", slotName: "operations" },
     ],
     toolbar: [
@@ -122,7 +133,7 @@ export const module: any = (instance: any) => {
         click: async () => {
           await proxy.search();
           nav.dialog(DialogComp, {}, {
-            width: '30%',
+            width: '500',
             title: '编辑信息',
           });
         },
@@ -135,7 +146,7 @@ export const module: any = (instance: any) => {
         }),
         click: () => {
           nav.drawer(DialogComp, {}, {
-            width: '30%',
+            width: '500',
             title: '编辑信息',
           });
         },

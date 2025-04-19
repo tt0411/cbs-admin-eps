@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import type { AdminLayoutProps } from '../../types';
 import { LAYOUT_MAX_Z_INDEX, LAYOUT_SCROLL_EL_ID, createLayoutCssVars } from './shared';
 import style from './index.module.css';
@@ -53,6 +53,19 @@ type Slots = {
 const slots = defineSlots<Slots>();
 
 const cssVars = computed(() => createLayoutCssVars(props));
+const isMobileView = ref(window.innerWidth <= 768);
+
+function handleResize() {
+  isMobileView.value = window.innerWidth <= 768;
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 
 // config visible
 const showHeader = computed(() => Boolean(slots.header) && props.headerVisible);
@@ -70,7 +83,6 @@ const isVertical = computed(() => props.mode === 'vertical');
 const isHorizontal = computed(() => props.mode === 'horizontal');
 
 const fixedHeaderAndTab = computed(() => props.fixedTop || (isHorizontal.value && isWrapperScroll.value));
-
 // css
 const leftGapClass = computed(() => {
   if (!props.fullContent && showSider.value) {
@@ -203,8 +215,8 @@ function handleClickMask() {
       <!-- Main Content -->
       <main
         :id="isContentScroll ? scrollElId : undefined"
-        class="flex flex-col flex-grow"
-        :class="[commonClass, contentClass, leftGapClass, { 'overflow-y-auto': isContentScroll }]"
+        class="flex"
+        :class="[commonClass, contentClass, leftGapClass, { 'overflow-y-auto': isContentScroll, 'flex-col flex-grow': !isMobileView }]"
       >
         <slot></slot>
       </main>

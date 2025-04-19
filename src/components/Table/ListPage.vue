@@ -29,7 +29,7 @@
       <el-table-plus ref="tableInstance" 
         :data="tableData.list"
         :is-loading="tableData.isLoading"
-        :columns="tableColumns" 
+        :columns="tableCheckedColumns" 
         :tableHeight="tableHeight"
         :props="props.props" 
         :toolbar="props.toolbar"
@@ -38,20 +38,22 @@
         :useSearch="props.useSearch"
         v-bind="Object.assign($attrs.props || {}, {})"
         @refresh="(params) => refreshTableData({ ...searchFormModel, ...params })">
-        <template v-for="column in tableColumns.filter((col) => col.slotName)"
+        <template v-for="column in tableCheckedColumns.filter((col) => col.slotName)"
           v-slot:[column.slotName]="{ row, col, index }">
           <slot :name="column.slotName" :row="row" :col="col" :index="index"></slot>
         </template>
       </el-table-plus>
+      
+
       <!-- 分页 -->
-      <div class="flex mt-20px justify-end" ref="paginationRef">
+      <div class="flex mt-20px justify-between" ref="paginationRef">
+        <el-icon v-if="props.props.showColumnSetting" class="text-18px cursor-pointer text-#333" @click="columnSettingVisible = true"><Setting /></el-icon>
       <Pagination v-if="props.props.showPagination" type="custom" :pageSize="searchFormModel.pageSize" :currentPage="searchFormModel.pageNum"  :total="tableData.total"
         @change="onPaginationChange">
       </Pagination>  
      </div>
   
-    <!--<TableCustomSettingDialog ref="tableSettingDialog" v-model:columns="tableColumns" @refresh-column="refreshColumn"
-      @reset="resetColumns" />-->
+    <TableCustomSetting :visible="columnSettingVisible" :columns="tableColumns" :columnWidth="'164px'" @close="columnSettingVisible = false" @submit="submitColumnSetting"/>
   </div>
 </template>
 <script setup lang="ts">
@@ -59,11 +61,10 @@
 import ElTablePlus from "./Table.vue";
 import Pagination from "./Pagination.vue"
 import ToolBarButton from "./ToolBarButton.vue";
-// import TableCustomSettingDialog from "./components/TableSettingDialog.vue";
-import { FullScreen, Refresh, Setting } from "@element-plus/icons-vue";
+import TableCustomSetting from "./TableCustomSetting.vue";
+import { Setting } from "@element-plus/icons-vue";
 import { useTable } from "@/components/Table/useTable";
 import { useColumn } from "@/components/Table/tableColumns";
-// import { useTableSetting } from "@/components/Table/tableCustomSetting";
 import { reactive, ref, onMounted, watchEffect, onUnmounted, nextTick } from "vue";
 import { isFunction } from "@vue/shared";
 
@@ -86,6 +87,17 @@ const props = withDefaults(defineProps<IProps>(), {
   searchParams: {},
   tableHeight: "calc(100vh - 280px)",
 });
+
+const tableInstance = ref(null);
+
+const { tableColumns, tableCheckedColumns, updateTableColumns } = useColumn(props.columns, props.actions || []);
+
+const columnSettingVisible = ref(false)
+
+function submitColumnSetting(data: any) {
+  updateTableColumns(data, props.actions)
+  columnSettingVisible.value = false
+}
 
 const searchFormModel = reactive<any>({
    ...props.searchParams, 
@@ -122,16 +134,6 @@ const dispatchSearch = (form: any) => {
   searchFormModel.pageNum = 1;
   refreshTableData(searchFormModel);
 };
-
-const tableInstance = ref(null);
-const tableSettingDialog = ref(null);
-
-const { tableColumns, updateTableColumns } = useColumn(props.columns, props.actions || []);
-
-// const { refreshColumn, resetColumns } = useTableSetting(
-//   tableInstance,
-//   updateTableColumns
-// );
 
 /***表格动态高度计算***/
 const listPageRef = ref<any>(null);
