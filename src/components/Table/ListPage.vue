@@ -37,6 +37,7 @@
         :events="props.events" 
         :useSearch="props.useSearch"
         v-bind="Object.assign($attrs.props || {}, {})"
+        @update:columns="data => updateTableColumns(data, props.actions)"
         @refresh="(params) => refreshTableData({ ...searchFormModel, ...params })">
         <template v-for="column in tableCheckedColumns.filter((col) => col.slotName)"
           v-slot:[column.slotName]="{ row, col, index }">

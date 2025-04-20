@@ -110,8 +110,10 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
         const extLabelWidth = column.label.includes('时间') || column.label.includes('日期') ? 100 : 0;
         // 计算表头宽度
         const headerWidth = getTextWidth(column.label) + 40 + sortWidth + tipWidth + extLabelWidth; 
-        column.minWidth = Math.max(headerWidth, 100); // 设置最小宽度
+        column.minWidth = Math.max(headerWidth, 100);
+        column.width = Math.max(headerWidth, 100); 
       }else{
+        column.minWidth = column.width;
         column.width = column.width;
       }
     }
@@ -128,6 +130,7 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
     // 计算操作列的宽度
     if (column.type === "action" && actions.length > 0) {
       column.fixed = "right";
+      column.width = getActionsText(actions) * 1.55 + "px";
       column.minWidth = getActionsText(actions) * 1.55 + "px";
     }
 

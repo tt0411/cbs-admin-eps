@@ -54,12 +54,8 @@ export const module: any = (instance: any) => {
       rowDblclick: (row: any, column: any) => {
         console.log("rowDbClick triggered:", row, column);
       },
-      headerDragend(newWidth: number, oldWidth: number, column: any) {
-        console.log("headerDragend triggered", newWidth, oldWidth, column);
-      },
       filterChange(newFilters: any) {
         console.log(newFilters, '===newFilters===');
-        
       }
     },
     loader: [

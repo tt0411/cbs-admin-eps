@@ -5,6 +5,7 @@
     :data="tableData"
     :loading="props.isLoading"
     @sort-change="sortChange"
+    @header-dragend="onHeaderDragend"
     v-on="props.events"
     :border="true"
     :stripe="false"
@@ -267,9 +268,19 @@ const columnDrop = () => {
         const oldItem = tableColumns.value[evt.oldIndex]
         tableColumns.value.splice(evt.oldIndex, 1);
         tableColumns.value.splice(evt.newIndex, 0, oldItem);
+        emit('update:columns', tableColumns.value)
       }
     }
   })
+}
+
+function onHeaderDragend(newWidth: number, oldWidth: number, column: any) {
+  tableColumns.value.forEach((item: any) => {
+    if (item.prop === column.property) {
+      item.width = newWidth;
+    }
+  });
+  emit('update:columns', tableColumns.value)
 }
 
 
