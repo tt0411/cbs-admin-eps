@@ -13,6 +13,7 @@ const { baseURL, otherBaseURL } = getServiceBaseURL(import.meta.env, isHttpProxy
 export const request = createFlatRequest<App.Service.Response, RequestInstanceState>(
   {
     baseURL,
+    withCredentials: true,
     headers: {
       apifoxToken: 'XL299LiMEDZ0H5h3A29PxwQXdMJqWyY2'
     }
@@ -136,7 +137,8 @@ export const request = createFlatRequest<App.Service.Response, RequestInstanceSt
 
 export const demoRequest = createRequest<App.Service.DemoResponse>(
   {
-    baseURL: otherBaseURL.demo
+    baseURL: otherBaseURL.demo,
+    withCredentials: true,
   },
   {
     async onRequest(config) {
@@ -152,14 +154,14 @@ export const demoRequest = createRequest<App.Service.DemoResponse>(
     isBackendSuccess(response) {
       // when the backend response code is "200", it means the request is success
       // you can change this logic by yourself
-      return response.data.status === '200';
+      return response.data.code === 0;
+    },
+    transformBackendResponse(response) {
+      return response.data;
     },
     async onBackendFail(_response) {
       // when the backend response code is not "200", it means the request is fail
       // for example: the token is expired, refresh token and retry request
-    },
-    transformBackendResponse(response) {
-      return response.data.result;
     },
     onError(error) {
       // when the request is fail, you can show error message

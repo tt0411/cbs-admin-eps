@@ -1,4 +1,4 @@
-import { request } from '../request';
+import { request, demoRequest } from '../request';
 
 /**
  * Login
@@ -45,4 +45,9 @@ export function fetchRefreshToken(refreshToken: string) {
  */
 export function fetchCustomBackendError(code: string, msg: string) {
   return request({ url: '/auth/error', params: { code, msg } });
+}
+
+// 测试接口
+export function test(url: string, params: any) {
+  return demoRequest({ url, params });
 }

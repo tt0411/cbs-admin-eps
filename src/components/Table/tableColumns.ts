@@ -14,16 +14,16 @@ export type Action = {
 };
 
 export interface TColumn {
-  label: string; // 列标题 可以是函数或字符串，根据需要在页面上显示在列
-  prop?: string; // 列的属性, 如果没有指定，则使用列名称
+  label: string; 
+  prop?: string; 
   slotName?: string;
   sortable?: boolean;
   headerTip?: string;
   dragged?: boolean;
   align?: string;
-  width?: number | string; // 列宽度 可选参数，默认为100 可以是整数或浮点数
-  minWidth?: number | string; // 最小列宽度 可选参数，默认为10 可以是整数或浮点
-  fixed?: FixedType; // 列宽对齐方式 left right none 默认为left 可选参数
+  width?: number | string; 
+  minWidth?: number | string; 
+  fixed?: FixedType; 
   type?: string;
   actions?: any[];
   showOverflowTooltip?: boolean;
@@ -111,10 +111,8 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
         // 计算表头宽度
         const headerWidth = getTextWidth(column.label) + 40 + sortWidth + tipWidth + extLabelWidth; 
         column.minWidth = Math.max(headerWidth, 100);
-        column.width = Math.max(headerWidth, 100); 
       }else{
         column.minWidth = column.width;
-        column.width = column.width;
       }
     }
 
@@ -130,7 +128,6 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
     // 计算操作列的宽度
     if (column.type === "action" && actions.length > 0) {
       column.fixed = "right";
-      column.width = getActionsText(actions) * 1.55 + "px";
       column.minWidth = getActionsText(actions) * 1.55 + "px";
     }
 

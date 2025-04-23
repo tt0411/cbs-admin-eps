@@ -5,7 +5,19 @@
       :filterItems="props.filterItems" @search="dispatchSearch">
     </SearchForm>
      -->
-    <div ref="searchFormRef"></div>
+        <div ref="searchFormRef" class="mb-10px">
+          <Select 
+          v-model="selectValues"
+          :multiple="true"
+          labelKey="outletsName"
+          valueKey="outletsCode"
+          url="/cbs-core-web/outlets/page"
+          />
+          <!-- <Select 
+          :multiple="true"
+          :options="options"
+          /> -->
+        </div>
       <!-- 表格操作 -->
       <div class="mb-10px" ref="toolbarRef">
       <ToolBarButton :actions="props.toolbar"/>
@@ -59,6 +71,7 @@
 </template>
 <script setup lang="ts">
 // import SearchForm from "@/components/Forms/SearchForm.vue";
+import Select from "../select/index.vue";
 import ElTablePlus from "./Table.vue";
 import Pagination from "./Pagination.vue"
 import ToolBarButton from "./ToolBarButton.vue";
@@ -66,7 +79,7 @@ import TableCustomSetting from "./TableCustomSetting.vue";
 import { Setting } from "@element-plus/icons-vue";
 import { useTable } from "@/components/Table/useTable";
 import { useColumn } from "@/components/Table/tableColumns";
-import { reactive, ref, onMounted, watchEffect, onUnmounted, nextTick } from "vue";
+import { reactive, ref, onMounted, watchEffect, onUnmounted, nextTick, watch } from "vue";
 import { isFunction } from "@vue/shared";
 
 export interface IProps {
@@ -95,6 +108,13 @@ const { tableColumns, tableCheckedColumns, updateTableColumns } = useColumn(prop
 
 const columnSettingVisible = ref(false)
 
+const initials = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+
+const options = Array.from({ length: 1000 }).map((_, idx) => ({
+  value: `Option ${idx + 1}`,
+  label: `${initials[idx % 10]}${idx}`,
+}))
+
 function submitColumnSetting(data: any) {
   updateTableColumns(data, props.actions)
   columnSettingVisible.value = false
@@ -110,6 +130,13 @@ const { tableData, refreshTableData } = useTable(
   props.loader,
   searchFormModel
 );
+
+const selectValues = ref([])
+
+watch(selectValues, (val) => {
+  console.log(val, '===selectValues===');
+  
+})
 
 const toSearch = async () => {
   if(isFunction(props.useSearch.beforeSearch)) {
