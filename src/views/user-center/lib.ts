@@ -1,6 +1,6 @@
 import { Plus } from '@element-plus/icons-vue'
 import dayjs from 'dayjs';
-import { h, nextTick } from 'vue';
+import { nextTick } from 'vue';
 import DialogComp from './dialogComp.vue';
 import { nav } from '@/utils/navigation';
 import DetailComponent from './detail.vue';
@@ -13,24 +13,25 @@ export const module: any = (instance: any) => {
   return {
     //支持el-table的所有属性
     props: {
+      rowKey: 'id', // 表格rowKey
       columnDrag: true, // 列是否可拖拽
       isFirstSearch: true, // 进入页面是否立即调用接口搜索
+      resetToSearch: true, // 重置之后是否搜索
       showPagination: true, // 是否显示分页
-      showColumnSetting: true,
+      showColumnSetting: true, // 是否显示列设置
       spanMethod: ({ row, column, rowIndex, columnIndex }: any) => {
         // // 合并行
-        // if (column.property === 'channelName') {
-        //   if (rowIndex % 2 === 0) {
-        //     return [2, 1]; // 合并两行
-        //   } else {
-        //     return [0, 0]; // 不显示当前单元格
-        //   }
-        // }
-        // 合并列
-        if (rowIndex === 0 && columnIndex === 3) {
+        if (column.property === 'channelName' && rowIndex === 0) {
+          return [2, 1]; 
+        }
+        if(column.property === 'channelName' && rowIndex === 1){
+          return [0, 0];
+        }
+      //  合并列
+        if (rowIndex === 2 && columnIndex === 3) {
           return [1, 2]; // 合并当前单元格和右侧单元格
         }
-        if (rowIndex === 0 && columnIndex === 4) {
+        if (rowIndex === 2 && columnIndex === 4) {
           return [0, 0]; // 隐藏被合并的单元格
         }
       },
@@ -38,15 +39,18 @@ export const module: any = (instance: any) => {
     searchParams: {
       name: '1',
       status: '1',
+      logisticsCodes: '顺丰',
+      outletsCodes: ['114001', '113002'],
+      pageSize: 20
     },
     useSearch: {
       beforeSearch: (params: any) => {
         params.age = 18;
         // console.log("beforeSearch triggered:", params);
       },
-      afterSearch: (params: any) => {
-        params.name = 'wmt'
-        // console.log("afterSearch triggered:", params);
+      afterSearch: (val: any) => {
+        proxy.handleChangeSelection([])
+        // console.log("afterSearch triggered:", val);
       },
     },
     //支持el-table的所有方法
@@ -56,27 +60,35 @@ export const module: any = (instance: any) => {
       },
       filterChange(newFilters: any) {
         console.log(newFilters, '===newFilters===');
+      },
+      selectionChange(val: any) {
+        proxy.handleChangeSelection(val)  
       }
     },
     loader: [
       {
-        id: 1, status1: '1', status2: '2', channelType: '邮箱', channelName: '抖音', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'),
+        id: 1, workOrderNo: 'GD2025042401', remark: 1, status1: '1', status2: '2', channelType: '邮箱', channelName: '抖音', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'),
         //  children: [{ id: 5, status1: '1-1', status2: '1-2', channelName: '抖音', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') }] 
       },
-      { id: 2, status1: '111', status2: '渠道名称渠道', channelName: '微信', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') },
-      { id: 3, status1: '333', status2: '4444', channelName: '微博', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') },
-      { id: 4, status1: '444', status2: '3231', channelName: '小红书', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') },
+      { id: 2, workOrderNo: 'GD2025042402', remark: 2, status1: '111', status2: '渠道名称渠道', channelName: '微信', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') },
+      { id: 3, workOrderNo: 'GD2025042403', remark: 3, status1: '333', status2: '4444', channelName: '微博', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') },
+      { id: 4, workOrderNo: 'GD2025042404', remark: 4, status1: '444', status2: '3231', channelName: '小红书', createTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss'), updateTime: dayjs(new Date).format('YYYY-MM-DD HH:mm:ss') },
     ],
     columns: [
       { type: "selection", label: "全选" },
       { type: "index", label: "序号" },
+      {
+        label: '工单号',
+        prop: 'workOrderNo',
+        width: '160px',
+        dragged: true,
+      },
       {
         label: "渠道名称",
         prop: "channelName",
         headerTip: '渠道名称渠道名称渠道名称渠道名称渠道名称渠道名称渠道名称渠道名称渠道名称渠道名称渠道名称',
         sortable: true,
         align: "left",
-        dragged: true,
         // 表头列筛选需要加此字段
         columnKey: 'channelName',
         filters:[
@@ -89,6 +101,10 @@ export const module: any = (instance: any) => {
       {
         label: "标签",
         prop: "tags",
+      },
+      {
+        label: "备注",
+        prop: "remark",
       },
       {
         label: "通知方式",
@@ -117,7 +133,7 @@ export const module: any = (instance: any) => {
       { label: "创建人", prop: "createBy" },
       { label: "修改时间", prop: "updateTime" },
       { label: "修改人", prop: "updateBy" },
-      // { label: "操作", slotName: "operations" },
+      // { label: "操作", fixed: 'right', width: '300px', slotName: "operations" },
     ],
     toolbar: [
       {
@@ -220,8 +236,7 @@ export const module: any = (instance: any) => {
         text: "跳转",
         // 支持el-button的所有属性
         click: ({ row }: any, table: any) => {
-          console.log(row, '====row===')
-          console.log(table, '====table===')
+          proxy.search();
         },
       },
       {

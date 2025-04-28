@@ -27,6 +27,8 @@ export interface TColumn {
   type?: string;
   actions?: any[];
   showOverflowTooltip?: boolean;
+  columnKey?: string;
+  filters?: any[];
   visible?: boolean;
   click?: Function;
   text?: Function | string;
@@ -107,9 +109,10 @@ const formatColumns = (columns: Array<TColumn>, actions: any[] = []) => {
       if (!column.width) {
         const sortWidth = column.sortable ? 20 : 0;
         const tipWidth = column.headerTip ? 20 : 0;
+        const filterWidth = column.filters ? 20 : 0;
         const extLabelWidth = column.label.includes('时间') || column.label.includes('日期') ? 100 : 0;
         // 计算表头宽度
-        const headerWidth = getTextWidth(column.label) + 40 + sortWidth + tipWidth + extLabelWidth; 
+        const headerWidth = getTextWidth(column.label) + 40 + sortWidth + tipWidth + extLabelWidth + filterWidth; 
         column.minWidth = Math.max(headerWidth, 100);
       }else{
         column.minWidth = column.width;

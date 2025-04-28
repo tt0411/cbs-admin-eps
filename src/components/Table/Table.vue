@@ -3,14 +3,13 @@
     class="elTable"
     ref="tableInstance"
     :data="tableData"
-    :loading="props.isLoading"
+    v-loading="props.isLoading"
     @sort-change="sortChange"
     @header-dragend="onHeaderDragend"
     v-on="props.events"
     :border="true"
     :stripe="false"
     :height="tableHeight"
-    rowKey="id"
     :resizable="true"
     :highlightCurrentRow="true"
     v-bind="$attrs.props || {}"
@@ -53,7 +52,7 @@
                 <template v-if="column.filters" #filter-icon>
                   <svg-icon local-icon="filter"/>
                 </template>
-                <template v-for="(grandChild, grandChildIndex) in child.children" :key="grandChild.key || grandChildIndex">
+                <template v-for="(grandChild, grandChildIndex) in child.children" :key="grandChild.prop || grandChildIndex">
                   <el-table-column v-bind="grandChild">
                     <template #header>
                       <span>
@@ -197,18 +196,10 @@ const props = withDefaults(defineProps<Props>(), {
 const tableData = ref<any[]>()
 const tableColumns = ref<any[]>([])
 
-watch(() => props.data, (newValue) => {
-  tableData.value = newValue
-}, { immediate: true })
-
-watch(
-  () => props.columns,
-  (newValue) => {
-    tableColumns.value = newValue
-  },
-  { immediate: true }
-)
-
+watch(() => props, (newValue) => {
+  tableData.value = newValue.data
+  tableColumns.value = newValue.columns
+}, { immediate: true, deep: true })
 
 const emit = defineEmits(["refresh", 'update:columns']);
 
@@ -290,9 +281,10 @@ const exposeObject: any = reactive({
   instance: tableInstance,
   refresh,
   selectionRows: toValue(computed(() => tableInstance.value?.getSelectionRows())),
+  clearSelection: () => tableInstance.value?.clearSelection(),
 });
 
-defineExpose(exposeObject);
+defineExpose({ exposeObject });
 
 </script>
 <style lang="scss">

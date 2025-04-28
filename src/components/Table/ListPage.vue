@@ -1,77 +1,52 @@
 <template>
   <div ref="listPageRef" class="list-page">
-    <!-- 搜索框 -->
-    <!-- <SearchForm v-show="props.filterItems?.length > 0" v-model:height="searchFormHeight"
-      :filterItems="props.filterItems" @search="dispatchSearch">
-    </SearchForm>
-     -->
-        <div ref="searchFormRef" class="mb-10px">
-          <Select 
-          v-model="selectValues"
-          :multiple="true"
-          labelKey="outletsName"
-          valueKey="outletsCode"
-          url="/cbs-core-web/outlets/page"
-          />
-          <!-- <Select 
-          :multiple="true"
-          :options="options"
-          /> -->
-        </div>
-      <!-- 表格操作 -->
-      <div class="mb-10px" ref="toolbarRef">
-      <ToolBarButton :actions="props.toolbar"/>
-        <!-- <el-button type="warning" size="small" @click="refreshTableData(searchFormModel)">
-          <el-icon style="vertical-align: middle">
-            <Refresh />
-          </el-icon>
-        </el-button>
-       <el-button type="info" size="small" @click.stop="tableSettingDialog.open()">
-          <el-icon style="vertical-align: middle">
-            <Setting />
-          </el-icon>
-        </el-button> -->
-        <!-- <el-button type="success" size="small" @click="requestFullScreen.toggle()">
-          <el-icon style="vertical-align: middle">
-            <FullScreen />
-          </el-icon>
-        </el-button> -->
-      </div>
-      <!-- 表格主体 -->
-      <el-table-plus ref="tableInstance" 
-        :data="tableData.list"
-        :is-loading="tableData.isLoading"
-        :columns="tableCheckedColumns" 
-        :tableHeight="tableHeight"
-        :props="props.props" 
-        :toolbar="props.toolbar"
-        :searchParams="props.searchParams"
-        :events="props.events" 
-        :useSearch="props.useSearch"
-        v-bind="Object.assign($attrs.props || {}, {})"
-        @update:columns="data => updateTableColumns(data, props.actions)"
-        @refresh="(params) => refreshTableData({ ...searchFormModel, ...params })">
-        <template v-for="column in tableCheckedColumns.filter((col) => col.slotName)"
-          v-slot:[column.slotName]="{ row, col, index }">
-          <slot :name="column.slotName" :row="row" :col="col" :index="index"></slot>
+    <!-- 搜索 -->
+    <div ref="searchFormRef" class="mb-15px pb-5px border-b-1px">
+      <SearchForm :searchParams="initialSearchParams" :loading="tableData.isLoading"
+       @search="handleSearch" @reset="handleReset">
+        <template v-if="$slots.visibleConditions" #visibleConditions="{ scope }">
+          <slot name="visibleConditions" :scope="scope"></slot>
         </template>
-      </el-table-plus>
-      
-
-      <!-- 分页 -->
-      <div class="flex mt-20px justify-between" ref="paginationRef">
-        <el-icon v-if="props.props.showColumnSetting" class="text-18px cursor-pointer text-#333" @click="columnSettingVisible = true"><Setting /></el-icon>
-      <Pagination v-if="props.props.showPagination" type="custom" :pageSize="searchFormModel.pageSize" :currentPage="searchFormModel.pageNum"  :total="tableData.total"
-        @change="onPaginationChange">
-      </Pagination>  
-     </div>
-  
-    <TableCustomSetting :visible="columnSettingVisible" :columns="tableColumns" :columnWidth="'164px'" @close="columnSettingVisible = false" @submit="submitColumnSetting"/>
+        <template v-if="$slots.hiddenConditions" #hiddenConditions="{ scope }">
+          <slot name="hiddenConditions" :scope="scope"></slot>
+        </template>
+        <template v-if="$slots.moreConditions" #moreConditions="{ scope }">
+          <slot name="moreConditions" :scope="scope"></slot>
+        </template>
+      </SearchForm>
+    </div>
+    <!-- 表格操作 -->
+    <div class="mb-10px flex items-center" ref="toolbarRef">
+      <ToolBarButton :actions="props.toolbar" />
+      <slot name="toolbar"></slot>
+    </div>
+    <!-- 表格主体 -->
+    <el-table-plus ref="tableInstance" :data="tableData.list" :is-loading="tableData.isLoading"
+      :columns="tableCheckedColumns" :tableHeight="tableHeight" :props="props.props" :toolbar="props.toolbar"
+      :events="props.events" :useSearch="props.useSearch" v-bind="Object.assign($attrs.props || {}, {})"
+      @update:columns="data => updateTableColumns(data, props.actions)"
+      @refresh="(params) => refreshTableData({ ...searchFormModel, ...params })">
+      <template v-for="column in tableCheckedColumns.filter((col) => col.slotName)"
+        v-slot:[column.slotName]="{ row, col, index }">
+        <slot :name="column.slotName" :row="row" :col="col" :index="index"></slot>
+      </template>
+    </el-table-plus>
+    <!-- 分页 -->
+    <div class="flex mt-20px justify-between" ref="paginationRef">
+      <el-icon v-if="props.props.showColumnSetting" class="text-18px cursor-pointer text-#333"
+        @click="columnSettingVisible = true">
+        <Setting />
+      </el-icon>
+      <Pagination v-if="props.props.showPagination" type="custom" :pageSize="searchFormModel.pageSize"
+        :currentPage="searchFormModel.pageNum" :total="tableData.total" @change="onPaginationChange">
+      </Pagination>
+    </div>
+    <!-- 表格列设置 -->
+    <TableCustomSetting :visible="columnSettingVisible" :columns="tableColumns" :columnWidth="'164px'"
+      @close="columnSettingVisible = false" @submit="submitColumnSetting" />
   </div>
 </template>
 <script setup lang="ts">
-// import SearchForm from "@/components/Forms/SearchForm.vue";
-import Select from "../select/index.vue";
 import ElTablePlus from "./Table.vue";
 import Pagination from "./Pagination.vue"
 import ToolBarButton from "./ToolBarButton.vue";
@@ -79,7 +54,7 @@ import TableCustomSetting from "./TableCustomSetting.vue";
 import { Setting } from "@element-plus/icons-vue";
 import { useTable } from "@/components/Table/useTable";
 import { useColumn } from "@/components/Table/tableColumns";
-import { reactive, ref, onMounted, watchEffect, onUnmounted, nextTick, watch } from "vue";
+import { reactive, ref, onMounted, watchEffect, onUnmounted, nextTick } from "vue";
 import { isFunction } from "@vue/shared";
 
 export interface IProps {
@@ -102,51 +77,45 @@ const props = withDefaults(defineProps<IProps>(), {
   tableHeight: "calc(100vh - 280px)",
 });
 
-const tableInstance = ref(null);
+const tableInstance = ref<any>(null);
 
 const { tableColumns, tableCheckedColumns, updateTableColumns } = useColumn(props.columns, props.actions || []);
 
 const columnSettingVisible = ref(false)
-
-const initials = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
-
-const options = Array.from({ length: 1000 }).map((_, idx) => ({
-  value: `Option ${idx + 1}`,
-  label: `${initials[idx % 10]}${idx}`,
-}))
-
 function submitColumnSetting(data: any) {
   updateTableColumns(data, props.actions)
   columnSettingVisible.value = false
 }
 
-const searchFormModel = reactive<any>({
-   ...props.searchParams, 
-   pageNum: 1, 
-   pageSize: 10 
+let searchFormModel = reactive<any>({
+  pageNum: 1,
+  pageSize: 10,
+  ...props.searchParams
 });
+
+// 保存初始的 searchParams
+let initialSearchParams = {};
 
 const { tableData, refreshTableData } = useTable(
   props.loader,
   searchFormModel
 );
 
-const selectValues = ref([])
-
-watch(selectValues, (val) => {
-  console.log(val, '===selectValues===');
-  
-})
+const getTableData = async () => {
+  await refreshTableData(searchFormModel)
+  if (isFunction(props.useSearch.afterSearch)) {
+    await props.useSearch.afterSearch(searchFormModel, tableData)
+   }
+};
 
 const toSearch = async () => {
-  if(isFunction(props.useSearch.beforeSearch)) {
-   await props.useSearch.beforeSearch(searchFormModel)
+  initialSearchParams = searchFormModel
+  if (isFunction(props.useSearch.beforeSearch)) {
+    await props.useSearch.beforeSearch(searchFormModel)
+    initialSearchParams = { ...searchFormModel }
   }
-  if(props.props.isFirstSearch !== false) {
-    await refreshTableData(searchFormModel)
-  }
-  if(isFunction(props.useSearch.afterSearch)) {
-    await props.useSearch.afterSearch(searchFormModel)
+  if (props.props.isFirstSearch !== false) {
+    getTableData()
   }
 }
 
@@ -155,12 +124,25 @@ toSearch()
 const onPaginationChange = ({ currentPage, pageSize }: any) => {
   searchFormModel.pageNum = currentPage;
   searchFormModel.pageSize = pageSize;
-  refreshTableData(searchFormModel);
+  getTableData()
 };
 
-const dispatchSearch = (form: any) => {
+const handleSearch = async (form: any) => {
   searchFormModel.pageNum = 1;
-  refreshTableData(searchFormModel);
+  searchFormModel = {
+    ...searchFormModel,
+    ...form,
+  }
+  getTableData()
+};
+
+const handleReset = async (form: any) => {
+  Object.assign(searchFormModel, {
+    ...form,
+  });
+  if(props.props.resetToSearch !== false) {
+    getTableData()
+  }
 };
 
 /***表格动态高度计算***/
@@ -176,7 +158,7 @@ const updateTableHeight = () => {
       searchFormRef.value?.clientHeight -
       paginationRef.value?.clientHeight -
       toolbarRef.value?.clientHeight -
-      65;
+      80;
   });
 };
 
@@ -194,10 +176,15 @@ onUnmounted(() => {
   window.removeEventListener("resize", () => nextTick(() => updateTableHeight()));
 });
 
+function clearSelection() {
+  tableInstance.value?.exposeObject.clearSelection();
+}
 
 defineExpose({
-  toSearch,
-  dispatchSearch,
+  handleSearch,
+  clearSelection,
+  resetSearch: handleReset,
+  searchParams: searchFormModel,
 });
 </script>
 <style lang="scss">

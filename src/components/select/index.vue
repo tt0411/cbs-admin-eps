@@ -17,7 +17,6 @@
         @change="handleChange"
         :suffix-icon="suffixIcon"
         :clearable="true"
-        :style="{ width }"
         v-bind="$attrs"
         popper-class="custom-select-popper"
       >
@@ -98,14 +97,13 @@ const props = defineProps({
     type: String,
     default: '请选择'
   },
-  width: {
-    type: String,
-    default: '240px'
-  },
   pageSize: {
     type: Number,
     default: 10
-  }
+  },
+  // allSelectModule: {
+
+  // }
 })
 
 // 事件

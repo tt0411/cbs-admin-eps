@@ -84,8 +84,8 @@ importers:
         specifier: 5.6.0
         version: 5.6.0
       element-plus:
-        specifier: ^2.9.5
-        version: 2.9.6(vue@3.5.13)
+        specifier: ^2.9.8
+        version: 2.9.8(vue@3.5.13)
       hash.js:
         specifier: ^1.1.7
         version: 1.1.7
@@ -5428,8 +5428,8 @@ packages:
     resolution: {integrity: sha512-P6FPqAWIZrC3sHDAwBitJBs7N7IF58m39XVny7DFseQXK2eiMn7nNQizFf63mWDDUnFvaqsM8FI0+ZZfLkdUGA==}
     dev: true
 
-  /element-plus@2.9.6(vue@3.5.13):
-    resolution: {integrity: sha512-D9zU28Ce0s/9O/Vp3ewemikxzFVA6gdZyMwmWijHijo+t5/9H3sHRTIm1WlfeNpFW2Yq0y8nHXD0fU5YxU6qlQ==}
+  /element-plus@2.9.8(vue@3.5.13):
+    resolution: {integrity: sha512-srViUaUdfblBKGMeuEPiXxxKlH5aUmKqEwmhb/At9Sj91DbU6od/jYN1955cTnzt3wTSA7GfnZF7UiRX9sdRHg==}
     peerDependencies:
       vue: ^3.2.0
     dependencies:

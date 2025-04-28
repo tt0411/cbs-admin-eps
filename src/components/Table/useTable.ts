@@ -1,4 +1,3 @@
-
 import { isArray, isFunction } from "@vue/shared";
 import { reactive, ref, watch } from "vue";
 
@@ -19,36 +18,31 @@ export function useTable(dataLoader: Function | any[], searchForm: any) {
 
   async function requestTableData(dataLoader: any, searchForm: any) {
     tableData.isLoading = true;
-
     if (!isArray(dataLoader) && !isFunction(dataLoader)) {
       console.error("----表格数据必须是方法或者数组----");
+      tableData.isLoading = false;
       return;
     }
 
     let promiseLoader = (searchForm: any) =>
       Promise.resolve(
         isArray(dataLoader) ? dataLoader : dataLoader(searchForm)
-      );
+    );
 
     try {
       const result = await promiseLoader(searchForm);
-
       if (Array.isArray(result)) {
         tableData.list = result;
         tableData.total = result.length;
-        tableData.isLoading = false;
         return;
       }
-
-      const { success, data, rows }: any = result;
-
+      const { success, data }: any = result;
       if (!success) {
         tableData.list = [];
         tableData.total = 0;
-        tableData.isLoading = false;
         return;
       }
-      tableData.list = Array.isArray(data) ? data : data.list || rows;
+      tableData.list = Array.isArray(data) ? data : data.list || data.result || [];
       tableData.total = data.total || tableData.list.length;
     } catch (error) {
       console.error(error);
