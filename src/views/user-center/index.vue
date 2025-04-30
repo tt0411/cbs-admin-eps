@@ -23,6 +23,9 @@ const initialOptions = ref([
   { outletsCode: '113002', outletsName: '河北服务站' },
 ])
 
+console.log('===user-center-page====');
+
+
 function search() {
   pageRef.value?.handleSearch();
 }
@@ -71,21 +74,25 @@ defineExpose({
         </el-form-item>
     </template>
     <template #hiddenConditions="{ scope }">
+      <div class="grid grid-cols-2">
       <el-form-item label="工单号" prop="orderCode">
         <el-input v-model="scope.orderCode" />
       </el-form-item>
       <el-form-item label="创建人" prop="by">
         <el-input v-model="scope.by" />
       </el-form-item>
+    </div>
     </template>
-    <template #moreConditions="{ scope }">
+    <!-- <template #moreConditions="{ scope }">
+      <div class="grid grid-cols-2">
       <el-form-item label="工单号" prop="orderCode">
         <el-input v-model="scope.orderCode" />
       </el-form-item>
       <el-form-item label="创建人" prop="by">
         <el-input v-model="scope.by" />
-      </el-form-item>
-    </template>
+      </el-form-item> 
+     </div>
+    </template> -->
     <!-- <template #toolbar>
       <el-button type="primary">新增</el-button>
     </template> -->

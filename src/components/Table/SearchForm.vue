@@ -115,26 +115,16 @@ function handleReset() {
 }
 </script>
 <style lang="scss">
- .hide-position {
+.hide-position {
   display: flex;
   flex-direction: column;
   padding: 15px 20px 0 0;
   max-height: 525px;
   overflow-y: auto;
-  ::v-deep .el-form-item {
-    display: flex;
-    white-space: nowrap;
-    > label {
-      min-width: 96px;
-    }
-  }
-  ::v-deep .el-form-item > .el-form-item__content {
-    .el-date-editor--daterange {
-      width: 250px;
-    }
-  }
-  ::v-deep .el-form-item__content {
-    flex: 1;
+  min-width: 600px;
+  .el-form-item__label {
+    padding: 0 12px 0 12px !important;
+    font-size:  var(--el-font-size-base);
   }
 }
 </style>

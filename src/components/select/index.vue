@@ -370,6 +370,9 @@ onUnmounted(() => {
 })
 </script>
 <style lang="scss">
+.el-input {
+  --el-input-inner-height: calc(var(--el-input-height, 32px));
+ }
   .loading-state, .empty-state {
     padding: 5px 0;
     text-align: center;
@@ -404,14 +407,14 @@ onUnmounted(() => {
 .custom-select {
   display: flex;
   gap: 10px;
+  width: 100%;
   
   .select-container {
     display: flex;
     align-items: center;
+    flex: 1;
     
     .el-select {
-      width: v-bind('props.width');
-      
       :deep(.el-input__wrapper) {
         background-color: #fff;
         border-radius: 4px;

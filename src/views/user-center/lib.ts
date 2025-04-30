@@ -227,6 +227,10 @@ export const module: any = (instance: any) => {
               },
               meta: {
                 title: `用户详情-${row.id}`,
+                keepAlive: true,
+                isLayout: true,
+                multiTab: true,
+                hideInMenu: true
               }
             },
           )

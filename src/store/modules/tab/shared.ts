@@ -49,7 +49,7 @@ export function getTabIdByRoute(route: App.Global.TabRoute) {
     const qs = queryKeys.map(key => `${key}=${query[key]}`).join('&');
     id = qs ? `${path}?${qs}` : path;
   }
-
+  
   return id;
 }
 
