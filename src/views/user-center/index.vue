@@ -76,13 +76,16 @@ defineExpose({
     </div>
     </template> -->
     <template #moreConditions="{ scope }">
-      <div class="grid grid-cols-2">
+      <div class="grid grid-cols-3">
       <el-form-item label="工单号" prop="orderCode">
         <el-input v-model="scope.orderCode" />
       </el-form-item>
       <el-form-item label="创建人" prop="by">
         <el-input v-model="scope.by" />
       </el-form-item> 
+      <el-form-item label="修改人" prop="updatedBy">
+        <el-input v-model="scope.updatedBy" />
+      </el-form-item>
      </div>
     </template>
     <!-- <template #toolbar>

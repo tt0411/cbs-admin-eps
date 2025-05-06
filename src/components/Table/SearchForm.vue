@@ -31,13 +31,13 @@
         </el-badge>
         <el-drawer v-model="showMoreSearchComp" title="更多条件查询" size="50%">
           <template #header>
-            <div class="dialog-header text-#333 text-18px text-bold pb-20px border-b-1px">
+            <div class="dialog-header text-#333 text-18px text-bold py-15px pl-15px">
               更多条件查询
             </div>
           </template>
           <slot name="moreConditions" :scope="form"></slot>
           <template #footer>
-            <div class="dialog-footer border-t-1px pt-20px">
+            <div class="dialog-footer">
               <el-button @click="showMoreSearchComp = false" :icon="Close">取 消</el-button>
               <el-button type="primary" @click="handleSearch" :icon="Check">确 定</el-button>
             </div>
@@ -151,7 +151,19 @@ function handleReset() {
   ::v-deep .el-form-item {
     margin-bottom: 10px;
   }
+  ::v-deep .el-drawer__header {
+    margin-bottom: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--el-border-color-light);
+  }
+  ::v-deep .el-drawer__close-btn {
+    padding-right: 15px;
+  }
 
+  ::v-deep .el-drawer__footer {
+    padding: 20px 20px 20px 0;
+    border-top: 1px solid var(--el-border-color-light);
+  }
   .visible-conditions {
     width: 100%;
     display: grid;

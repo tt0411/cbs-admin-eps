@@ -114,8 +114,8 @@ const props = defineProps({
     default: 10
   },
   allSelectModule: {
-    key: '全部',
-    value: 'all'
+    type: Object,
+    default: () => ({})
   }
 })
 
