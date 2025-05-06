@@ -17,15 +17,6 @@ const options = Array.from({ length: 1000 }).map((_, idx) => ({
 }))
 
 const selectedRows = ref<any[]>([])
-
-const initialOptions = ref([
-  { outletsCode: '114001', outletsName: '北京服务站' },
-  { outletsCode: '113002', outletsName: '河北服务站' },
-])
-
-console.log('===user-center-page====');
-
-
 function search() {
   pageRef.value?.handleSearch();
 }
@@ -55,7 +46,7 @@ defineExpose({
           :multiple="true"
           labelKey="outletsName"
           valueKey="outletsCode"
-          :initial-selected-options="initialOptions"
+          :allSelectModule="{ key: '全部', value: 'all' }"
           url="/cbs-core-web/outlets/page"
           /> 
       </el-form-item>
@@ -64,6 +55,7 @@ defineExpose({
           v-model="scope.localOutletsCodes"
           :multiple="true"
           :options="options"
+          :allSelectModule="{ key: '全部', value: 'all' }"
           />
       </el-form-item>
       <el-form-item label="物流公司" prop="logisticsCodes">

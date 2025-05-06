@@ -20,6 +20,17 @@
         v-bind="$attrs"
         popper-class="custom-select-popper"
       >
+        <!-- 添加全选选项 -->
+        <el-option
+          v-if="multiple && allSelectModule"
+          :key="allSelectModule.value"
+          :label="allSelectModule.key"
+          :value="allSelectModule.value"
+        >
+          <div class="option-item">
+            <span>{{ allSelectModule.key }}</span>
+          </div>
+        </el-option>
 
         <!-- 下拉框顶部操作按钮 -->
         <template #header v-if="multiple">
@@ -36,6 +47,7 @@
           :key="item[valueKey]"
           :label="item[labelKey]"
           :value="item[valueKey]"
+          :disabled="selectedValues.includes(allSelectModule?.value)"
         >
           <div class="option-item">
             <span>{{ item[labelKey] }}</span>
@@ -58,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, h, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, h, onUnmounted, onMounted } from 'vue'
 import { debounce } from 'lodash-es'
 import { test } from '@/service/api'
 import { Loading, ArrowDown, Refresh } from '@element-plus/icons-vue'
@@ -101,9 +113,10 @@ const props = defineProps({
     type: Number,
     default: 10
   },
-  // allSelectModule: {
-
-  // }
+  allSelectModule: {
+    key: '全部',
+    value: 'all'
+  }
 })
 
 // 事件
@@ -326,36 +339,54 @@ const handleVisibleChange = (visible) => {
   }
 }
 
-const handleChange = (val) => {
-  emit('update:modelValue', val)
-}
-
 // 全选
 const handleSelectAll = () => {
   if (!props.multiple) return
   
-  const options = isLocal.value ? filteredLocalOptions.value : internalOptions.value
-  selectedValues.value = options.map(item => item[props.valueKey])
+  // 如果已经选中了"全部"，则取消全选
+  if (selectedValues.value.includes(props.allSelectModule.value)) {
+    selectedValues.value = []
+  } else {
+    // 选中"全部"选项
+    selectedValues.value = [props.allSelectModule.value]
+  }
+}
+
+// 处理选择变化
+const handleChange = (val) => {
+  if (props.multiple && props.allSelectModule) {
+    // 如果选中了"全部"
+    if (val.includes(props.allSelectModule.value)) {
+      // 只保留"全部"选项
+      selectedValues.value = [props.allSelectModule.value]
+    } else {
+      // 如果选中了其他选项，则移除"全部"选项
+      selectedValues.value = val.filter(v => v !== props.allSelectModule.value)
+    }
+  } else {
+    selectedValues.value = val
+  }
+  
+  emit('update:modelValue', selectedValues.value)
+  emit('change', selectedValues.value, selectedOptions.value)
 }
 
 // 反选
 const handleInvertSelect = () => {
   if (!props.multiple) return
   
-  const options = isLocal.value ? filteredLocalOptions.value : internalOptions.value
-  const currentSelectedSet = new Set(selectedValues.value)
-  selectedValues.value = options
-    .filter(item => !currentSelectedSet.has(item[props.valueKey]))
-    .map(item => item[props.valueKey])
+  // 如果当前选中了"全部"，则清空选择
+  if (selectedValues.value.includes(props.allSelectModule.value)) {
+    selectedValues.value = []
+  } else {
+    // 如果当前没有选中"全部"，则选中"全部"
+    selectedValues.value = [props.allSelectModule.value]
+  }
 }
 
 // 清空
 const handleClearAll = () => {
-  if (props.multiple) {
-    selectedValues.value = []
-  } else {
-    selectedValues.value = ''
-  }
+  selectedValues.value = []
 }
 
 // 监听选中值变化
@@ -363,6 +394,44 @@ watch(selectedValues, (newVal) => {
   // emit('update:modelValue', newVal)
   emit('change', newVal, selectedOptions.value)
 }, { deep: true })
+
+// 处理远程数据的回显
+const handleRemoteInitialValues = async () => {
+  if (isLocal.value || !props.url || !selectedValues.value.length) return
+  
+  // 如果已经有数据，检查是否需要补充缺失的选中项
+  const existingKeys = new Set(internalOptions.value.map(item => item[props.valueKey]))
+  const missingValues = selectedValues.value.filter(value => !existingKeys.has(value))
+  
+  if (missingValues.length > 0) {
+    loading.value = true
+    try {
+      const requestParams = {
+        currentPage: 1,
+        pageSize: missingValues.length,
+        enabled: true,
+        queryModel: 1,
+        [`${props.valueKey}List`]: Array.isArray(missingValues) ? missingValues.join(',') : missingValues,
+        ...props.params
+      }
+      
+      const { data } = await test(props.url, requestParams) || {}
+      const newList = data.result || []
+      
+      // 将新获取的数据添加到现有选项中
+      internalOptions.value = [...internalOptions.value, ...newList]
+    } catch (error) {
+      console.error('Failed to fetch initial values:', error)
+    } finally {
+      loading.value = false
+    }
+  }
+}
+
+// 在组件挂载时处理回显
+onMounted(() => {
+  handleRemoteInitialValues()
+})
 
 onUnmounted(() => {
   // 清除缓存数据
