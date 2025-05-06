@@ -65,7 +65,7 @@ defineExpose({
           <el-input v-model="scope.name" />
         </el-form-item>
     </template>
-    <template #hiddenConditions="{ scope }">
+    <!-- <template #hiddenConditions="{ scope }">
       <div class="grid grid-cols-2">
       <el-form-item label="工单号" prop="orderCode">
         <el-input v-model="scope.orderCode" />
@@ -74,8 +74,8 @@ defineExpose({
         <el-input v-model="scope.by" />
       </el-form-item>
     </div>
-    </template>
-    <!-- <template #moreConditions="{ scope }">
+    </template> -->
+    <template #moreConditions="{ scope }">
       <div class="grid grid-cols-2">
       <el-form-item label="工单号" prop="orderCode">
         <el-input v-model="scope.orderCode" />
@@ -84,7 +84,7 @@ defineExpose({
         <el-input v-model="scope.by" />
       </el-form-item> 
      </div>
-    </template> -->
+    </template>
     <!-- <template #toolbar>
       <el-button type="primary">新增</el-button>
     </template> -->
